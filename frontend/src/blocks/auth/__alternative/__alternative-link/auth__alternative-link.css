@@ -1,0 +1,9 @@
+.auth__alternative-link {
+  text-decoration: none;
+  color: #fff;
+  cursor: pointer;
+}
+
+.auth__alternative-link:hover {
+  opacity: 0.6;
+}
