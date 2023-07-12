@@ -7,7 +7,7 @@
 
 ## Ссылки на проект
 
-IP 
+IP 158.160.50.216
 
 Frontend https://lilaismailova.nomoreparties.sbs
 
