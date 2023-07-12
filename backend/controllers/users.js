@@ -8,6 +8,7 @@ const {
   NotFoundError,
 } = require('../errors/Errors');
 
+// Получение списка всех пользователей
 const getUsers = async (req, res, next) => {
   try {
     const users = await User.find({});
@@ -17,6 +18,7 @@ const getUsers = async (req, res, next) => {
   }
 };
 
+// Получение информации о пользователе по его ID
 const getUserById = async (req, res, next) => {
   try {
     const { userId } = req.params;
@@ -30,6 +32,7 @@ const getUserById = async (req, res, next) => {
   }
 };
 
+// Получение информации о текущем пользователе
 const getCurrentUser = async (req, res, next) => {
   try {
     const userId = req.user._id;
@@ -43,6 +46,7 @@ const getCurrentUser = async (req, res, next) => {
   }
 };
 
+// Создание нового пользователя
 const createUser = async (req, res, next) => {
   try {
     const {
@@ -77,6 +81,7 @@ const createUser = async (req, res, next) => {
   }
 };
 
+// Вход пользователя
 const login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
@@ -84,13 +89,8 @@ const login = async (req, res, next) => {
     if (!user || !await bcrypt.compare(password, user.password)) {
       throw new UnauthorizedError('Неправильные почта или пароль');
     }
-    const token = jwt.sign({ _id: user._id }, 'secret-key', {
+    const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET || 'development-secret', {
       expiresIn: '7d',
-    });
-    res.cookie('jwt', token, {
-      maxAge: 3600000 * 24 * 7,
-      httpOnly: true,
-      sameSite: true,
     });
     res.send({ token });
   } catch (error) {
@@ -98,6 +98,7 @@ const login = async (req, res, next) => {
   }
 };
 
+// Обновление профиля пользователя
 const updateProfile = async (req, res, next) => {
   try {
     const { name, about } = req.body;
@@ -120,6 +121,7 @@ const updateProfile = async (req, res, next) => {
   }
 };
 
+// Обновление аватара пользователя
 const updateAvatar = async (req, res, next) => {
   try {
     const { avatar } = req.body;

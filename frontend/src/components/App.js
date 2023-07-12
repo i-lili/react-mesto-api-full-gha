@@ -79,158 +79,135 @@ function App() {
     setSelectedCard(card);
   };
 
-  useEffect(() => {
-    // Получение информации о пользователе с сервера
-    api
-      .getUserInfo()
-      .then((userData) => {
-        setCurrentUser(userData);
-      })
-      .catch((err) => {
-        console.error(err);
-      });
-  }, []);
+  // Функция для получения данных пользователя
+  const fetchUserData = async (jwt) => {
+    api.setAuthToken(jwt); // устанавливаем токен для API
+  
+    try {
+      const userData = await api.getUserInfo();
+      setCurrentUser(userData);
+  
+      const cardsData = await api.getCardList();
+      setCards(cardsData);
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
-  useEffect(() => {
-    // Получение списка карточек с сервера
-    api
-      .getCardList()
-      .then((cardsData) => {
-        setCards(cardsData);
-      })
-      .catch((err) => {
-        console.error(err);
-      });
-  }, []);
-
-  // Функция для обработки лайка и дизлайка карточки
-  function handleCardLike(card) {
-    const isLiked = card.likes.some((i) => i._id === currentUser._id);
-    // Отправляем запрос на сервер для изменения статуса лайка на карточке
-    api
-      .changeLikeCardStatus(card._id, !isLiked)
-      .then((newCard) => {
-        setCards((state) =>
-          state.map((c) => (c._id === card._id ? newCard : c))
-        );
-      })
-      .catch((err) => {
-        console.error(err);
-      });
+// Функция для обработки лайка и дизлайка карточки
+async function handleCardLike(card) {
+  const isLiked = card.likes.some((id) => id === currentUser._id);
+  // Отправляем запрос на сервер для изменения статуса лайка на карточке
+  try {
+    const newCard = await api.changeLikeCardStatus(card._id, !isLiked);
+    setCards((state) =>
+      state.map((c) => (c._id === card._id ? newCard : c))
+    );
+  } catch (err) {
+    console.error(err);
   }
+}
 
-  function handleCardDelete(card) {
-    // Отправляем запрос на сервер для удаления карточки
-    api
-      .deleteCard(card._id)
-      .then(() => {
-        setCards((state) => state.filter((c) => c._id !== card._id));
-      })
-      .catch((err) => {
-        console.error(err);
-      });
+async function handleCardDelete(card) {
+  // Отправляем запрос на сервер для удаления карточки
+  try {
+    await api.deleteCard(card._id);
+    setCards((state) => state.filter((c) => c._id !== card._id));
+  } catch (err) {
+    console.error(err);
   }
+}
 
-  const handleUpdateUser = (userInfo) => {
-    // Отправляем запрос на сервер для обновления информации о пользователе
-    api
-      .editUserInfo(userInfo)
-      .then((updatedUserInfo) => {
-        setCurrentUser(updatedUserInfo);
-        closeAllPopups();
-      })
-      .catch((err) => {
-        console.error(err);
-      });
+  // Функция для обновления данных пользователя
+  const handleUpdateUser = async (userInfo) => {
+    try {
+      const updatedUserInfo = await api.editUserInfo(userInfo);
+      setCurrentUser(updatedUserInfo);
+      closeAllPopups();
+    } catch (err) {
+      console.error(err);
+    }
   };
 
-  const handleUpdateAvatar = (newAvatar) => {
-    api
-      // Отправляем запрос на сервер для обновления аватара пользователя
-      .updateAvatar(newAvatar.avatar)
-      .then((updatedUserInfo) => {
-        setCurrentUser(updatedUserInfo);
-        closeAllPopups();
-      })
-      .catch((err) => {
-        console.error(err);
-      });
+  // Функция для обновления аватара пользователя
+  const handleUpdateAvatar = async (newAvatar) => {
+    try {
+      const updatedUserInfo = await api.updateAvatar(newAvatar.avatar);
+      setCurrentUser(updatedUserInfo);
+      closeAllPopups();
+    } catch (err) {
+      console.error(err);
+    }
   };
 
-  const handleAddPlaceSubmit = (newPlace) => {
-    api
-      // Отправляем запрос на сервер для добавления новой карточки
-      .addCard(newPlace)
-      .then((newCard) => {
-        setCards([newCard, ...cards]);
-        closeAllPopups();
-      })
-      .catch((err) => {
-        console.error(err);
-      });
+  // Функция для добавления новой карточки
+  const handleAddPlaceSubmit = async (newPlace) => {
+    try {
+      const newCard = await api.addCard(newPlace);
+      setCards([newCard, ...cards]);
+      closeAllPopups();
+    } catch (err) {
+      console.error(err);
+    }
   };
 
-  // Функция для регистрации пользователя
-  const handleRegister = (email, password) => {
-    auth
-      .register(email, password)
-      .then((data) => {
-        if (data) {
-          setEmail(email); // Обновляем email
-          setIsInfoTooltipPopupOpen(true);
-          setIsSuccess(true);
-          navigate("/sign-in");
-        }
-      })
-      .catch((error) => {
+const handleRegister = async (email, password) => {
+    try {
+      const data = await auth.register(email, password);
+      if (data) {
+        // После регистрации показываем попап об успешной регистрации
         setIsInfoTooltipPopupOpen(true);
-        setIsSuccess(false);
-        console.log(error);
-      });
+        setIsSuccess(true);
+        navigate("/sign-in");
+      } 
+    } catch (error) {
+      setIsInfoTooltipPopupOpen(true);
+      setIsSuccess(false);
+      console.log(error);
+    }
   };
 
-  // Функция для авторизации пользователя
-  const handleLogin = (email, password) => {
-    auth
-      .login(email, password)
-      .then((data) => {
-        if (data.token) {
-          localStorage.setItem("jwt", data.token);
-          localStorage.setItem("email", email);
-          setEmail(email);
-          setLoggedIn(true);
-          navigate("/");
-        }
-      })
-      .catch((error) => {
-        setIsInfoTooltipPopupOpen(true);
-        setIsSuccess(false);
-        console.log(error);
-      });
+  
+  const handleLogin = async (email, password) => {
+    try {
+      const data = await auth.login(email, password);
+      if (data.token) {
+        localStorage.setItem("jwt", data.token);
+        localStorage.setItem("email", email);
+        setEmail(email);
+        navigate("/");
+        fetchUserData(data.token);
+        setLoggedIn(true);
+      }
+    } catch (error) {
+      setIsInfoTooltipPopupOpen(true);
+      setIsSuccess(false);
+      console.log(error);
+    }
   };
-
-  // Функция для проверки токена
+  
   useEffect(() => {
-    const jwt = localStorage.getItem("jwt");
-    const storedEmail = localStorage.getItem("email");
-    if (jwt) {
-      auth
-        .checkToken(jwt)
-        .then((res) => {
+    (async () => {
+      const jwt = localStorage.getItem("jwt");
+      const storedEmail = localStorage.getItem("email");
+      if (jwt) {
+        try {
+          const res = await auth.checkToken(jwt);
           if (res) {
             setEmail(storedEmail);
             setLoggedIn(true);
+            fetchUserData(jwt);
             navigate("/");
           }
           setIsLoading(false);
-        })
-        .catch((err) => {
+        } catch (err) {
           console.log(err);
           setIsLoading(false);
-        });
-    } else {
-      setIsLoading(false);
-    }
+        }
+      } else {
+        setIsLoading(false);
+      }
+    })();
   }, []);
 
   return isLoading ? (

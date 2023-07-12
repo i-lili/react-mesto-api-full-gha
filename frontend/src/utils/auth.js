@@ -1,44 +1,46 @@
-export const BASE_URL = "https://auth.nomoreparties.co";
+export const BASE_URL = "https://api.lilaismailova.nomoreparties.sbs"; // Базовый URL сервера
 
 // Функция для проверки ответа сервера
-function checkResponse(response) {
+async function checkResponse(response) {
   if (response.ok) {
-    return response.json();
+    return await response.json(); // Возвращает JSON из ответа, если запрос выполнен успешно
   } else {
-    throw new Error(`Ошибка: ${response.status}`);
+    throw new Error(`Ошибка: ${response.status}`); // Возникла ошибка, выбрасывает исключение с описанием статуса ошибки
   }
 }
 
-// Функция принимает адрес электронной почты и пароль, а затем отправляет запрос на сервер для регистрации пользователя с этими данными
-export const register = (email, password) => {
-  return fetch(`${BASE_URL}/signup`, {
+// Функция для регистрации пользователя
+export const register = async (email, password) => {
+  const response = await fetch(`${BASE_URL}/signup`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({ email, password }),
-  }).then(checkResponse);
+  });
+  return checkResponse(response);
 };
 
 // Функция для авторизации пользователя
-export const login = (email, password) => {
-  return fetch(`${BASE_URL}/signin`, {
+export const login = async (email, password) => {
+  const response = await fetch(`${BASE_URL}/signin`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({ email, password }),
-  }).then(checkResponse);
+  });
+  return checkResponse(response);
 };
 
-// Функция принимает токен и отправляет запрос на сервер, чтобы проверить, действителен ли токен
-// Если токен действителен, сервер вернет данные пользователя
-export const checkToken = (token) => {
-  return fetch(`${BASE_URL}/users/me`, {
+// Функция для проверки токена авторизации и получения данных пользователя
+export const checkToken = async (token) => {
+  const response = await fetch(`${BASE_URL}/users/me`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
     },
-  }).then(checkResponse);
+  });
+  return checkResponse(response);
 };

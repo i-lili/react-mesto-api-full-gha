@@ -8,9 +8,9 @@ function AddPlacePopup({ isOpen, onClose, onAddPlace }) {
   const { values, handleChange, errors, isValid, resetForm } =
     useFormAndValidation();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    onAddPlace({
+    await onAddPlace({
       name: values.title,
       link: values.link,
     });

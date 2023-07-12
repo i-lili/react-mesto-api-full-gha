@@ -6,6 +6,7 @@ const {
   BadRequestError,
 } = require('../errors/Errors');
 
+// Получение всех карточек
 const getCards = async (req, res, next) => {
   try {
     const cards = await Card.find({});
@@ -15,6 +16,7 @@ const getCards = async (req, res, next) => {
   }
 };
 
+// Создание новой карточки
 const createCard = async (req, res, next) => {
   const { name, link } = req.body;
   const owner = req.user._id;
@@ -31,6 +33,7 @@ const createCard = async (req, res, next) => {
   }
 };
 
+// Удаление карточки
 const deleteCard = async (req, res, next) => {
   const { cardId } = req.params;
   const userId = req.user._id;
@@ -53,6 +56,7 @@ const deleteCard = async (req, res, next) => {
   }
 };
 
+// Поставить лайк карточке
 const likeCard = async (req, res, next) => {
   const { cardId } = req.params;
   const userId = req.user._id;
@@ -74,6 +78,7 @@ const likeCard = async (req, res, next) => {
   }
 };
 
+// Снять лайк с карточки
 const dislikeCard = async (req, res, next) => {
   const { cardId } = req.params;
   const userId = req.user._id;

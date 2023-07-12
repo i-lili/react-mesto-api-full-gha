@@ -1,7 +1,6 @@
 import React from "react";
 import Popup from "./Popup";
 import Form from "./Form";
-import Input from "./Input";
 
 // Создаем функциональный компонент PopupWithForm, который принимает несколько пропсов
 function PopupWithForm({
