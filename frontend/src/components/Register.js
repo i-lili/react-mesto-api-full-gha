@@ -7,7 +7,7 @@ function Register({ onRegister }) {
     // Используем AuthForm для отображения формы регистрации
     <AuthForm
       title="Регистрация"
-      buttonText="Войти"
+      buttonText="Зарегистрироваться"
       alternativeText="Уже зарегистрированы?"
       alternativeLink="/sign-in"
       onSubmitAction={onRegister}
